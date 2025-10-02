@@ -115,7 +115,19 @@
             const stopwatchDisplay = document.getElementById("stopwatch");
 
             function generateTarget() {
-                target = Array.from({})
+                target = Array.from({ length: n }, () =>
+                    Math.random() > 0.5 ? "H" : "T"
+                 );
+            }
+
+            function render() {
+                coinsDiv.innerHTML = "";
+                targetDiv.innerHTML = "";
+
+                coins.forEach((c, i) => {
+                    const coin = document.createElement("div");
+                    coin.className = "coin + (c === "H" ? "heads" : "tails")"
+                })
             }
         </script>
     </body>
