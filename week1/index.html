@@ -90,6 +90,33 @@
 
         <div id=""stopwatch"> 0.0s</div>
 
-        <div id=""
+        <div id="game">
+            <p id=""target">Target: </p>
+            <div class="coin-row" id="coins"></div>
+            <div class="coin-row" id=""targetRow"></div>
+            <div id="info">
+                <p>Moves: <span id="moves">0</span></p>
+            </div>
+            <button onclick="resetGame()">Restart Game</button>
+        </div>
+
+        <script>
+            const n = 10;
+            let coins = Array(n).fill("H");
+            let target = [];
+            let moves = 0;
+            let startTime = null;
+            let timerInterval;
+
+            const coinsDiv = document.getElementById("coins");
+            const targetDiv = document.getElementById("targetRow");
+            const movesDisplay = document.getElementById("moves");
+            const targetDisplay = document.getElementById("target");
+            const stopwatchDisplay = document.getElementById("stopwatch");
+
+            function generateTarget() {
+                target = Array.from({})
+            }
+        </script>
     </body>
 </html>
