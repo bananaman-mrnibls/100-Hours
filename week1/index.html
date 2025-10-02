@@ -1,9 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta charset"UTF-8">
+        <title>Coin Flip Puzzle</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                background: #f9f9f9;
+                margin: 0;
+                padding: 20px;
+            }
 
+            h1 {
+                color: #333;
+            }
+
+            #game {
+                margin-top: 20px;
+            }
+
+            .coin-row {
+                display: flex;
+                justify-content: center;
+                margin: 15px 0;
+            }
+
+            .coin {
+                display: flex;
+                justify-content: center;
+                margin: 15 px 0;
+            }
+
+            .coin {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 5px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 20px;
+                transition: transform 0.3s;
+            }
+
+            .coin:hover {
+                transform: scale(1.1);
+            }
+
+            .heads {
+                background: gold;
+                color: black;
+                border: 2px solid #aaa
+            }
+
+            .tails{
+                background: silver;
+                color: black;
+                border: 2px solid #aaa;
+            }
+
+            #target {
+                font-size: 18px;
+                margin-bottom: 10 px;
+            }
+
+            #info {
+                margin: 15 px 0;
+            }
+
+            #stopwatch {
+                position: fixed;
+                top: 10px;
+                right: 20px:
+            }
+
+        </style>
     </head>
     <body>
-        
+
     </body>
 </html>
