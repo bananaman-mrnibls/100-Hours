@@ -168,6 +168,26 @@
                 resetStopwatch();
                 render();
             }
+
+            function startStopwatch() {
+                startTime = Date.now();
+                timerInterval = setInterval(() => {
+                    let elapsed = (Date.now() - startTime) / 1000;
+                    stopwatchDisplay.textContent = ' ${elapsed.toFixed(1)}s';
+                }
+            }
+
+            function stopStopwatch() {
+                clearInterval(timerInterval);
+            }
+
+            function resetStopwatch() {
+                clearInterval(timerInterval);
+                startTime = null;
+                stopwatchDisplay.textContent = "0.0s"
+            }
+
+            resetGame();
         </script>
     </body>
 </html>
