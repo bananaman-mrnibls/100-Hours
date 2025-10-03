@@ -126,8 +126,47 @@
 
                 coins.forEach((c, i) => {
                     const coin = document.createElement("div");
-                    coin.className = "coin + (c === "H" ? "heads" : "tails")"
-                })
+                    coin.className = "coin + (c === "H" ? "heads" : "tails")";
+                    coin.textContent = c;
+                    coin.onclick = () => flipCoin(i);
+                    coinsDiv.appendChild(coin);
+                });
+
+                target.forEach((c) => {
+                    const coin = document.createElement("div");
+                    coin.className = "coin" + (c === "H" ? "heads" : "tails");
+                    coin.textContent = c;
+                    coin.onclick = () => flipCoin(i);
+                    coinsDiv.appendChild(coin);
+                });
+
+                movesDisplay.textContent = moves;
+            }
+
+            function flipCoin(index) {
+            if (!startTime) startStopwatch();
+
+            coins[index] = coins[index] === "H" ? "T" : "H";
+            moves++;
+            render();
+            checkWin()
+            }
+
+            function checkWin() {
+                if (coins.join("") === target.join("")){
+                    stopStopwatch();
+                    setTimeout(() => {
+                        alert(`🎉 You matched the pattern in ${moves} moves!/nTime: ${stopwatchDisplay.textContent}`);
+                    }, 100);
+                }
+            }
+
+            function restGame() {
+                coins = Array(n).fill("H");
+                moves = 0;
+                generateTarget();
+                resetStopwatch();
+                render();
             }
         </script>
     </body>
