@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Coin Flip Puzzle</title>
   <style>
+    /* === Base Layout === */
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      background: linear-gradient(to bottom right, #f0f9ff, #cbebff);
       margin: 0;
       padding: 20px;
+      transition: background 0.5s, color 0.5s;
+      perspective: 1000px;
     }
 
     h1 {
-      color: #333;
       margin-bottom: 5px;
+      transition: color 0.5s;
     }
 
     #levelDisplay {
@@ -23,15 +25,12 @@
       font-weight: bold;
     }
 
-    #game {
-      margin-top: 10px;
-    }
-
     .coin-row {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
       margin: 15px 0;
+      perspective: 1000px;
     }
 
     .coin {
@@ -45,7 +44,9 @@
       cursor: pointer;
       font-weight: bold;
       font-size: 22px;
-      transition: transform 0.3s;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
       box-shadow: 0 4px 8px rgba(0,0,0,0.25);
     }
 
@@ -53,21 +54,33 @@
       transform: scale(1.1);
     }
 
-    .heads {
+    /* Front and back faces */
+    .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #aaa;
+      font-weight: bold;
+    }
+
+    .front {
       background: radial-gradient(circle at top left, gold, goldenrod);
       color: black;
-      border: 2px solid #aaa;
     }
 
-    .tails {
+    .back {
       background: radial-gradient(circle at top left, silver, gray);
       color: black;
-      border: 2px solid #aaa;
+      transform: rotateY(180deg);
     }
 
-    #target {
-      font-size: 18px;
-      margin-bottom: 10px;
+    .flip {
+      transform: rotateY(180deg);
     }
 
     #info {
@@ -101,14 +114,56 @@
     }
 
     button:hover {
-      background: #45a049;
+      transform: scale(1.05);
+    }
+
+    select {
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-top: 5px;
+    }
+
+    /* === THEMES === */
+    body.light {
+      background: linear-gradient(to bottom right, #f0f9ff, #cbebff);
+      color: #222;
+    }
+
+    body.dark {
+      background: linear-gradient(to bottom right, #1a1a1a, #333);
+      color: #eee;
+    }
+
+    body.green {
+      background: linear-gradient(to bottom right, #e3f9e5, #a8e6a1);
+      color: #1f3d1f;
+    }
+
+    body.blue {
+      background: linear-gradient(to bottom right, #d0e9ff, #91c9f7);
+      color: #06283D;
+    }
+
+    body.orange {
+      background: linear-gradient(to bottom right, #ffe4c4, #ffb347);
+      color: #4a2c00;
     }
   </style>
 </head>
-<body>
+<body class="light">
   <h1>🪙 Coin Flip Puzzle</h1>
   <div id="stopwatch">⏱ 0.0s</div>
   <p id="levelDisplay">Level 1</p>
+
+  <label for="themeSelector">🎨 Theme:</label>
+  <select id="themeSelector">
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+    <option value="green">Green</option>
+    <option value="blue">Blue</option>
+    <option value="orange">Orange</option>
+  </select>
 
   <div id="game">
     <p id="target">Target Pattern:</p>
@@ -121,7 +176,7 @@
   </div>
 
   <script>
-    let level = 1; // start at level 1
+    let level = 1;
     let coins = [];
     let target = [];
     let moves = 0;
@@ -131,7 +186,6 @@
     const coinsDiv = document.getElementById("coins");
     const targetDiv = document.getElementById("targetRow");
     const movesDisplay = document.getElementById("moves");
-    const targetDisplay = document.getElementById("target");
     const stopwatchDisplay = document.getElementById("stopwatch");
     const levelDisplay = document.getElementById("levelDisplay");
 
@@ -139,7 +193,7 @@
       if (lv === 1) return 5;
       if (lv === 2) return 10;
       if (lv === 3) return 15;
-      return 20; // beyond level 3
+      return 20;
     }
 
     function generateTarget(n) {
@@ -154,16 +208,33 @@
 
       coins.forEach((c, i) => {
         const coin = document.createElement("div");
-        coin.className = "coin " + (c === "H" ? "heads" : "tails");
-        coin.textContent = c;
-        coin.onclick = () => flipCoin(i);
+        coin.className = "coin" + (c === "T" ? " flip" : "");
+
+        const front = document.createElement("div");
+        front.className = "face front";
+        front.textContent = "H";
+
+        const back = document.createElement("div");
+        back.className = "face back";
+        back.textContent = "T";
+
+        coin.appendChild(front);
+        coin.appendChild(back);
+        coin.onclick = () => flipCoin(i, coin);
         coinsDiv.appendChild(coin);
       });
 
       target.forEach((c) => {
         const coin = document.createElement("div");
-        coin.className = "coin " + (c === "H" ? "heads" : "tails");
-        coin.textContent = c;
+        coin.className = "coin" + (c === "T" ? " flip" : "");
+        const front = document.createElement("div");
+        front.className = "face front";
+        front.textContent = "H";
+        const back = document.createElement("div");
+        back.className = "face back";
+        back.textContent = "T";
+        coin.appendChild(front);
+        coin.appendChild(back);
         targetDiv.appendChild(coin);
       });
 
@@ -171,12 +242,12 @@
       levelDisplay.textContent = "Level " + level;
     }
 
-    function flipCoin(index) {
+    function flipCoin(index, coinElement) {
       if (!startTime) startStopwatch();
-
+      coinElement.classList.toggle("flip");
       coins[index] = coins[index] === "H" ? "T" : "H";
       moves++;
-      render();
+      movesDisplay.textContent = moves;
       checkWin();
     }
 
@@ -200,7 +271,7 @@
       render();
     }
 
-    // Stopwatch functions
+    // Stopwatch
     function startStopwatch() {
       startTime = Date.now();
       timerInterval = setInterval(() => {
@@ -219,7 +290,12 @@
       stopwatchDisplay.textContent = "⏱ 0.0s";
     }
 
-    // Init game
+    // Theme selector
+    const themeSelector = document.getElementById("themeSelector");
+    themeSelector.addEventListener("change", (e) => {
+      document.body.className = e.target.value;
+    });
+
     resetGame();
   </script>
 </body>
