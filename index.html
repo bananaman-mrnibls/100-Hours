@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>🕹️ Mini Coin Games</title>
+  <title>Mini Coin Games</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -27,9 +27,7 @@
       transition: 0.3s;
       margin: 8px;
     }
-    button:hover {
-      transform: scale(1.05);
-    }
+    button:hover { transform: scale(1.05); }
 
     select {
       padding: 8px;
@@ -37,14 +35,14 @@
       font-size: 15px;
     }
 
-    /* Themes */
+    /* === THEMES === */
     body.light { background: #f0f9ff; color: #111; }
     body.dark { background: #1a1a1a; color: #eee; }
     body.green { background: linear-gradient(to bottom right, #e3f9e5, #a8e6a1); color: #1f3d1f; }
     body.blue { background: linear-gradient(to bottom right, #d0e9ff, #91c9f7); color: #06283D; }
     body.orange { background: linear-gradient(to bottom right, #ffe4c4, #ffb347); color: #4a2c00; }
 
-    /* Coin flip visuals */
+    /* === COIN FLIP PUZZLE STYLES === */
     .coin-row {
       display: flex;
       justify-content: center;
@@ -65,6 +63,7 @@
       position: relative;
       transition: transform 0.6s;
     }
+
     .face {
       position: absolute;
       width: 100%;
@@ -77,6 +76,7 @@
       border: 2px solid #aaa;
       font-weight: bold;
     }
+
     .front { background: radial-gradient(circle at top left, gold, goldenrod); color: black; }
     .back { background: radial-gradient(circle at top left, silver, gray); color: black; transform: rotateY(180deg); }
     .flip { transform: rotateY(180deg); }
@@ -97,12 +97,12 @@
 <body class="light">
   <!-- === MAIN MENU === -->
   <section id="menu">
-    <h1>🕹️ Mini Coin Games</h1>
+    <h1>Mini Coin Games</h1>
     <p>Select a game:</p>
-    <button id="flipBtn">🪙 Coin Flip Puzzle</button>
-    <button id="catchBtn">🎯 Coin Catcher</button>
+    <button id="flipBtn">Coin Flip Puzzle</button>
+    <button id="catchBtn">Coin Catcher</button>
     <br><br>
-    <label>🎨 Theme:</label>
+    <label>Theme:</label>
     <select id="themeSelector">
       <option value="light">Light</option>
       <option value="dark">Dark</option>
@@ -114,28 +114,32 @@
 
   <!-- === COIN FLIP PUZZLE === -->
   <section id="coinFlip" style="display:none;">
-    <h1>🪙 Coin Flip Puzzle</h1>
-    <div id="stopwatch">⏱ 0.0s</div>
+    <h1>Coin Flip Puzzle</h1>
+    <div id="stopwatch">0.0s</div>
     <p id="levelDisplay">Level 1</p>
+
     <div id="game">
-      <p id="target">Target Pattern:</p>
+      <p><strong>Start Pattern:</strong></p>
       <div class="coin-row" id="coins"></div>
+
+      <p><strong>Target Pattern:</strong></p>
       <div class="coin-row" id="targetRow"></div>
+
       <p>Moves: <span id="moves">0</span></p>
       <button onclick="resetGame()">Restart Level</button>
       <br><br>
-      <button onclick="backToMenu()">🏠 Back to Menu</button>
+      <button onclick="backToMenu()">Back to Menu</button>
     </div>
   </section>
 
-  <!-- === COIN CATCHER GAME === -->
+  <!-- === COIN CATCHER === -->
   <section id="coinCatcher" style="display:none;">
-    <h1>🎯 Coin Catcher</h1>
+    <h1>Coin Catcher</h1>
     <div id="catcherGame" style="position:relative;width:400px;height:500px;margin:0 auto;background:#fff8e1;border:3px solid #333;border-radius:10px;overflow:hidden;">
       <div id="basket" style="position:absolute;bottom:10px;left:170px;width:60px;height:30px;background:brown;border-radius:5px;"></div>
     </div>
     <p>Score: <span id="catcherScore">0</span></p>
-    <button id="backMenuCatcher">🏠 Back to Menu</button>
+    <button id="backMenuCatcher">Back to Menu</button>
   </section>
 
   <script>
@@ -163,15 +167,17 @@
     }
 
     // === COIN FLIP PUZZLE ===
-    let level=1, coins=[], target=[], moves=0, startTime=null, timerInterval;
-    const coinsDiv=document.getElementById("coins");
-    const targetDiv=document.getElementById("targetRow");
-    const movesDisplay=document.getElementById("moves");
-    const stopwatchDisplay=document.getElementById("stopwatch");
-    const levelDisplay=document.getElementById("levelDisplay");
+    let level = 1, coins = [], target = [], moves = 0, startTime = null, timerInterval;
 
-    function coinsForLevel(lv){ if(lv===1)return 5;if(lv===2)return 10;if(lv===3)return 15;return 20;}
-    function generateTarget(n){return Array.from({length:n},()=>Math.random()>0.5?"H":"T");}
+    const coinsDiv = document.getElementById("coins");
+    const targetDiv = document.getElementById("targetRow");
+    const movesDisplay = document.getElementById("moves");
+    const stopwatchDisplay = document.getElementById("stopwatch");
+    const levelDisplay = document.getElementById("levelDisplay");
+
+    function coinsForLevel(lv){ if(lv===1)return 5;if(lv===2)return 10;if(lv===3)return 15;return 20; }
+
+    function randomPattern(n){ return Array.from({length:n},()=>Math.random()>0.5?"H":"T"); }
 
     function render(){
       coinsDiv.innerHTML=""; targetDiv.innerHTML="";
@@ -196,7 +202,7 @@
       levelDisplay.textContent="Level "+level;
     }
 
-    function flipCoin(i, el){
+    function flipCoin(i,el){
       if(!startTime) startStopwatch();
       el.classList.toggle("flip");
       coins[i]=(coins[i]==="H"?"T":"H");
@@ -208,17 +214,17 @@
       if(coins.join("")===target.join("")){
         stopStopwatch();
         setTimeout(()=>{
-          alert(`🎉 Level ${level} complete!\nMoves: ${moves}\nTime: ${stopwatchDisplay.textContent}`);
+          alert(`Level ${level} complete!\nMoves: ${moves}\nTime: ${stopwatchDisplay.textContent}`);
           level++; resetGame();
-        },200);
+        },150);
       }
     }
 
     function resetGame(){
       moves=0;
       const n=coinsForLevel(level);
-      coins=Array(n).fill("H");
-      target=generateTarget(n);
+      coins=randomPattern(n);
+      target=randomPattern(n);
       resetStopwatch();
       render();
     }
@@ -226,11 +232,12 @@
     function startStopwatch(){
       startTime=Date.now();
       timerInterval=setInterval(()=>{
-        stopwatchDisplay.textContent=`⏱ ${((Date.now()-startTime)/1000).toFixed(1)}s`;
+        stopwatchDisplay.textContent=`${((Date.now()-startTime)/1000).toFixed(1)}s`;
       },100);
     }
+
     function stopStopwatch(){ clearInterval(timerInterval); }
-    function resetStopwatch(){ clearInterval(timerInterval); startTime=null; stopwatchDisplay.textContent="⏱ 0.0s"; }
+    function resetStopwatch(){ clearInterval(timerInterval); startTime=null; stopwatchDisplay.textContent="0.0s"; }
 
     // === COIN CATCHER ===
     let catcherRunning=false;
