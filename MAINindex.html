@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🕹️ Mini Coin Games</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 8px;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    select {
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    /* Themes */
+    body.light { background: #f0f9ff; color: #111; }
+    body.dark { background: #1a1a1a; color: #eee; }
+    body.green { background: linear-gradient(to bottom right, #e3f9e5, #a8e6a1); color: #1f3d1f; }
+    body.blue { background: linear-gradient(to bottom right, #d0e9ff, #91c9f7); color: #06283D; }
+    body.orange { background: linear-gradient(to bottom right, #ffe4c4, #ffb347); color: #4a2c00; }
+
+    /* Coin flip visuals */
+    .coin-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 15px 0;
+      perspective: 1000px;
+    }
+
+    .coin {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 22px;
+      transform-style: preserve-3d;
+      position: relative;
+      transition: transform 0.6s;
+    }
+    .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #aaa;
+      font-weight: bold;
+    }
+    .front { background: radial-gradient(circle at top left, gold, goldenrod); color: black; }
+    .back { background: radial-gradient(circle at top left, silver, gray); color: black; transform: rotateY(180deg); }
+    .flip { transform: rotateY(180deg); }
+
+    #stopwatch {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      background: white;
+      padding: 6px 12px;
+      border: 2px solid #333;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="light">
+  <!-- === MAIN MENU === -->
+  <section id="menu">
+    <h1>🕹️ Mini Coin Games</h1>
+    <p>Select a game:</p>
+    <button id="flipBtn">🪙 Coin Flip Puzzle</button>
+    <button id="catchBtn">🎯 Coin Catcher</button>
+    <br><br>
+    <label>🎨 Theme:</label>
+    <select id="themeSelector">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="green">Green</option>
+      <option value="blue">Blue</option>
+      <option value="orange">Orange</option>
+    </select>
+  </section>
+
+  <!-- === COIN FLIP PUZZLE === -->
+  <section id="coinFlip" style="display:none;">
+    <h1>🪙 Coin Flip Puzzle</h1>
+    <div id="stopwatch">⏱ 0.0s</div>
+    <p id="levelDisplay">Level 1</p>
+    <div id="game">
+      <p id="target">Target Pattern:</p>
+      <div class="coin-row" id="coins"></div>
+      <div class="coin-row" id="targetRow"></div>
+      <p>Moves: <span id="moves">0</span></p>
+      <button onclick="resetGame()">Restart Level</button>
+      <br><br>
+      <button onclick="backToMenu()">🏠 Back to Menu</button>
+    </div>
+  </section>
+
+  <!-- === COIN CATCHER GAME === -->
+  <section id="coinCatcher" style="display:none;">
+    <h1>🎯 Coin Catcher</h1>
+    <div id="catcherGame" style="position:relative;width:400px;height:500px;margin:0 auto;background:#fff8e1;border:3px solid #333;border-radius:10px;overflow:hidden;">
+      <div id="basket" style="position:absolute;bottom:10px;left:170px;width:60px;height:30px;background:brown;border-radius:5px;"></div>
+    </div>
+    <p>Score: <span id="catcherScore">0</span></p>
+    <button id="backMenuCatcher">🏠 Back to Menu</button>
+  </section>
+
+  <script>
+    // === THEME SELECTOR ===
+    document.getElementById("themeSelector").addEventListener("change", (e)=>{
+      document.body.className = e.target.value;
+    });
+
+    // === MENU HANDLING ===
+    document.getElementById("flipBtn").onclick = ()=>{
+      document.getElementById("menu").style.display="none";
+      document.getElementById("coinFlip").style.display="block";
+      resetGame();
+    };
+    document.getElementById("catchBtn").onclick = ()=>{
+      document.getElementById("menu").style.display="none";
+      document.getElementById("coinCatcher").style.display="block";
+      startCoinCatcher();
+    };
+
+    function backToMenu(){
+      stopStopwatch();
+      document.getElementById("coinFlip").style.display="none";
+      document.getElementById("menu").style.display="block";
+    }
+
+    // === COIN FLIP PUZZLE ===
+    let level=1, coins=[], target=[], moves=0, startTime=null, timerInterval;
+    const coinsDiv=document.getElementById("coins");
+    const targetDiv=document.getElementById("targetRow");
+    const movesDisplay=document.getElementById("moves");
+    const stopwatchDisplay=document.getElementById("stopwatch");
+    const levelDisplay=document.getElementById("levelDisplay");
+
+    function coinsForLevel(lv){ if(lv===1)return 5;if(lv===2)return 10;if(lv===3)return 15;return 20;}
+    function generateTarget(n){return Array.from({length:n},()=>Math.random()>0.5?"H":"T");}
+
+    function render(){
+      coinsDiv.innerHTML=""; targetDiv.innerHTML="";
+      coins.forEach((c,i)=>{
+        const coin=document.createElement("div");
+        coin.className="coin"+(c==="T"?" flip":"");
+        const f=document.createElement("div"); f.className="face front"; f.textContent="H";
+        const b=document.createElement("div"); b.className="face back"; b.textContent="T";
+        coin.appendChild(f); coin.appendChild(b);
+        coin.onclick=()=>flipCoin(i,coin);
+        coinsDiv.appendChild(coin);
+      });
+      target.forEach((c)=>{
+        const coin=document.createElement("div");
+        coin.className="coin"+(c==="T"?" flip":"");
+        const f=document.createElement("div"); f.className="face front"; f.textContent="H";
+        const b=document.createElement("div"); b.className="face back"; b.textContent="T";
+        coin.appendChild(f); coin.appendChild(b);
+        targetDiv.appendChild(coin);
+      });
+      movesDisplay.textContent=moves;
+      levelDisplay.textContent="Level "+level;
+    }
+
+    function flipCoin(i, el){
+      if(!startTime) startStopwatch();
+      el.classList.toggle("flip");
+      coins[i]=(coins[i]==="H"?"T":"H");
+      moves++; movesDisplay.textContent=moves;
+      checkWin();
+    }
+
+    function checkWin(){
+      if(coins.join("")===target.join("")){
+        stopStopwatch();
+        setTimeout(()=>{
+          alert(`🎉 Level ${level} complete!\nMoves: ${moves}\nTime: ${stopwatchDisplay.textContent}`);
+          level++; resetGame();
+        },200);
+      }
+    }
+
+    function resetGame(){
+      moves=0;
+      const n=coinsForLevel(level);
+      coins=Array(n).fill("H");
+      target=generateTarget(n);
+      resetStopwatch();
+      render();
+    }
+
+    function startStopwatch(){
+      startTime=Date.now();
+      timerInterval=setInterval(()=>{
+        stopwatchDisplay.textContent=`⏱ ${((Date.now()-startTime)/1000).toFixed(1)}s`;
+      },100);
+    }
+    function stopStopwatch(){ clearInterval(timerInterval); }
+    function resetStopwatch(){ clearInterval(timerInterval); startTime=null; stopwatchDisplay.textContent="⏱ 0.0s"; }
+
+    // === COIN CATCHER ===
+    let catcherRunning=false;
+    let basket=document.getElementById("basket");
+    let catcherScore=0;
+    let coinInterval;
+    let coinsArr=[];
+
+    function startCoinCatcher(){
+      catcherScore=0;
+      document.getElementById("catcherScore").textContent=catcherScore;
+      catcherRunning=true;
+      const gameArea=document.getElementById("catcherGame");
+
+      gameArea.onmousemove=(e)=>{
+        const rect=gameArea.getBoundingClientRect();
+        let x=e.clientX-rect.left-basket.offsetWidth/2;
+        x=Math.max(0,Math.min(rect.width-basket.offsetWidth,x));
+        basket.style.left=x+"px";
+      };
+
+      coinInterval=setInterval(()=>{
+        if(!catcherRunning)return;
+        const coin=document.createElement("div");
+        coin.style.position="absolute";
+        coin.style.top="0px";
+        coin.style.left=Math.random()*360+"px";
+        coin.style.width="30px";
+        coin.style.height="30px";
+        coin.style.borderRadius="50%";
+        coin.style.background="gold";
+        coin.style.boxShadow="0 2px 5px rgba(0,0,0,0.3)";
+        document.getElementById("catcherGame").appendChild(coin);
+        coinsArr.push(coin);
+      },1000);
+      animateCoins();
+    }
+
+    function animateCoins(){
+      if(!catcherRunning)return;
+      const gameArea=document.getElementById("catcherGame");
+      const gameRect=gameArea.getBoundingClientRect();
+      const basketRect=basket.getBoundingClientRect();
+
+      for(let i=coinsArr.length-1;i>=0;i--){
+        const coin=coinsArr[i];
+        let top=parseFloat(coin.style.top);
+        coin.style.top=top+5+"px";
+        const coinRect=coin.getBoundingClientRect();
+        if(
+          coinRect.bottom>=basketRect.top &&
+          coinRect.right>=basketRect.left &&
+          coinRect.left<=basketRect.right &&
+          coinRect.bottom<=basketRect.bottom+30
+        ){
+          coin.remove(); coinsArr.splice(i,1);
+          catcherScore++;
+          document.getElementById("catcherScore").textContent=catcherScore;
+        } else if(coinRect.top>gameRect.bottom){
+          coin.remove(); coinsArr.splice(i,1);
+        }
+      }
+      requestAnimationFrame(animateCoins);
+    }
+
+    function stopCoinCatcher(){
+      catcherRunning=false;
+      clearInterval(coinInterval);
+      coinsArr.forEach(c=>c.remove());
+      coinsArr=[];
+    }
+
+    document.getElementById("backMenuCatcher").onclick=()=>{
+      stopCoinCatcher();
+      document.getElementById("coinCatcher").style.display="none";
+      document.getElementById("menu").style.display="block";
+    };
+  </script>
+</body>
+</html>
