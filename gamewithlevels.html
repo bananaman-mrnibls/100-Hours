@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Coin Flip Puzzle</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(to bottom right, #f0f9ff, #cbebff);
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    #levelDisplay {
+      font-size: 20px;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+
+    #game {
+      margin-top: 10px;
+    }
+
+    .coin-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 15px 0;
+    }
+
+    .coin {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 22px;
+      transition: transform 0.3s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    }
+
+    .coin:hover {
+      transform: scale(1.1);
+    }
+
+    .heads {
+      background: radial-gradient(circle at top left, gold, goldenrod);
+      color: black;
+      border: 2px solid #aaa;
+    }
+
+    .tails {
+      background: radial-gradient(circle at top left, silver, gray);
+      color: black;
+      border: 2px solid #aaa;
+    }
+
+    #target {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    #info {
+      margin: 15px 0;
+      font-size: 18px;
+    }
+
+    #stopwatch {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      background: white;
+      padding: 6px 12px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>🪙 Coin Flip Puzzle</h1>
+  <div id="stopwatch">⏱ 0.0s</div>
+  <p id="levelDisplay">Level 1</p>
+
+  <div id="game">
+    <p id="target">Target Pattern:</p>
+    <div class="coin-row" id="coins"></div>
+    <div class="coin-row" id="targetRow"></div>
+    <div id="info">
+      <p>Moves: <span id="moves">0</span></p>
+    </div>
+    <button onclick="resetGame()">Restart Level</button>
+  </div>
+
+  <script>
+    let level = 1; // start at level 1
+    let coins = [];
+    let target = [];
+    let moves = 0;
+    let startTime = null;
+    let timerInterval;
+
+    const coinsDiv = document.getElementById("coins");
+    const targetDiv = document.getElementById("targetRow");
+    const movesDisplay = document.getElementById("moves");
+    const targetDisplay = document.getElementById("target");
+    const stopwatchDisplay = document.getElementById("stopwatch");
+    const levelDisplay = document.getElementById("levelDisplay");
+
+    function coinsForLevel(lv) {
+      if (lv === 1) return 5;
+      if (lv === 2) return 10;
+      if (lv === 3) return 15;
+      return 20; // beyond level 3
+    }
+
+    function generateTarget(n) {
+      return Array.from({ length: n }, () =>
+        Math.random() > 0.5 ? "H" : "T"
+      );
+    }
+
+    function render() {
+      coinsDiv.innerHTML = "";
+      targetDiv.innerHTML = "";
+
+      coins.forEach((c, i) => {
+        const coin = document.createElement("div");
+        coin.className = "coin " + (c === "H" ? "heads" : "tails");
+        coin.textContent = c;
+        coin.onclick = () => flipCoin(i);
+        coinsDiv.appendChild(coin);
+      });
+
+      target.forEach((c) => {
+        const coin = document.createElement("div");
+        coin.className = "coin " + (c === "H" ? "heads" : "tails");
+        coin.textContent = c;
+        targetDiv.appendChild(coin);
+      });
+
+      movesDisplay.textContent = moves;
+      levelDisplay.textContent = "Level " + level;
+    }
+
+    function flipCoin(index) {
+      if (!startTime) startStopwatch();
+
+      coins[index] = coins[index] === "H" ? "T" : "H";
+      moves++;
+      render();
+      checkWin();
+    }
+
+    function checkWin() {
+      if (coins.join("") === target.join("")) {
+        stopStopwatch();
+        setTimeout(() => {
+          alert(`🎉 You completed Level ${level}!\nMoves: ${moves}\nTime: ${stopwatchDisplay.textContent}`);
+          level++;
+          resetGame();
+        }, 100);
+      }
+    }
+
+    function resetGame() {
+      moves = 0;
+      const n = coinsForLevel(level);
+      coins = Array(n).fill("H");
+      target = generateTarget(n);
+      resetStopwatch();
+      render();
+    }
+
+    // Stopwatch functions
+    function startStopwatch() {
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        let elapsed = (Date.now() - startTime) / 1000;
+        stopwatchDisplay.textContent = `⏱ ${elapsed.toFixed(1)}s`;
+      }, 100);
+    }
+
+    function stopStopwatch() {
+      clearInterval(timerInterval);
+    }
+
+    function resetStopwatch() {
+      clearInterval(timerInterval);
+      startTime = null;
+      stopwatchDisplay.textContent = "⏱ 0.0s";
+    }
+
+    // Init game
+    resetGame();
+  </script>
+</body>
+</html>
