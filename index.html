@@ -11,7 +11,6 @@
       margin: 0;
       padding: 20px;
       transition: background 0.5s, color 0.5s;
-      perspective: 1000px;
     }
 
     h1 {
@@ -30,7 +29,6 @@
       justify-content: center;
       flex-wrap: wrap;
       margin: 15px 0;
-      perspective: 1000px;
     }
 
     .coin {
@@ -44,9 +42,7 @@
       cursor: pointer;
       font-weight: bold;
       font-size: 22px;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-      position: relative;
+      transition: transform 0.3s, background 0.3s;
       box-shadow: 0 4px 8px rgba(0,0,0,0.25);
     }
 
@@ -54,33 +50,16 @@
       transform: scale(1.1);
     }
 
-    /* Front and back faces */
-    .face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #aaa;
-      font-weight: bold;
-    }
-
-    .front {
+    .heads {
       background: radial-gradient(circle at top left, gold, goldenrod);
       color: black;
+      border: 2px solid #aaa;
     }
 
-    .back {
+    .tails {
       background: radial-gradient(circle at top left, silver, gray);
       color: black;
-      transform: rotateY(180deg);
-    }
-
-    .flip {
-      transform: rotateY(180deg);
+      border: 2px solid #aaa;
     }
 
     #info {
@@ -125,30 +104,76 @@
     }
 
     /* === THEMES === */
+
+    /* LIGHT THEME */
     body.light {
       background: linear-gradient(to bottom right, #f0f9ff, #cbebff);
       color: #222;
     }
+    body.light h1 {
+      color: #333;
+    }
+    body.light #stopwatch {
+      background: white;
+      border-color: #333;
+    }
 
+    /* DARK THEME */
     body.dark {
       background: linear-gradient(to bottom right, #1a1a1a, #333);
       color: #eee;
     }
+    body.dark h1 {
+      color: #f7c948;
+    }
+    body.dark #stopwatch {
+      background: #222;
+      border-color: #f7c948;
+      color: #f7c948;
+    }
 
+    /* GREEN THEME */
     body.green {
       background: linear-gradient(to bottom right, #e3f9e5, #a8e6a1);
       color: #1f3d1f;
     }
+    body.green h1 {
+      color: #2e8b57;
+    }
+    body.green #stopwatch {
+      background: #c8f7c5;
+      border-color: #2e8b57;
+      color: #2e8b57;
+    }
 
+    /* BLUE THEME */
     body.blue {
       background: linear-gradient(to bottom right, #d0e9ff, #91c9f7);
       color: #06283D;
     }
+    body.blue h1 {
+      color: #004aad;
+    }
+    body.blue #stopwatch {
+      background: #e6f2ff;
+      border-color: #004aad;
+      color: #004aad;
+    }
 
+    /* ORANGE THEME */
     body.orange {
       background: linear-gradient(to bottom right, #ffe4c4, #ffb347);
       color: #4a2c00;
     }
+    body.orange h1 {
+      color: #ff6600;
+    }
+    body.orange #stopwatch {
+      background: #fff2e0;
+      border-color: #ff6600;
+      color: #ff6600;
+    }
+
   </style>
 </head>
 <body class="light">
@@ -208,33 +233,16 @@
 
       coins.forEach((c, i) => {
         const coin = document.createElement("div");
-        coin.className = "coin" + (c === "T" ? " flip" : "");
-
-        const front = document.createElement("div");
-        front.className = "face front";
-        front.textContent = "H";
-
-        const back = document.createElement("div");
-        back.className = "face back";
-        back.textContent = "T";
-
-        coin.appendChild(front);
-        coin.appendChild(back);
-        coin.onclick = () => flipCoin(i, coin);
+        coin.className = "coin " + (c === "H" ? "heads" : "tails");
+        coin.textContent = c;
+        coin.onclick = () => flipCoin(i);
         coinsDiv.appendChild(coin);
       });
 
       target.forEach((c) => {
         const coin = document.createElement("div");
-        coin.className = "coin" + (c === "T" ? " flip" : "");
-        const front = document.createElement("div");
-        front.className = "face front";
-        front.textContent = "H";
-        const back = document.createElement("div");
-        back.className = "face back";
-        back.textContent = "T";
-        coin.appendChild(front);
-        coin.appendChild(back);
+        coin.className = "coin " + (c === "H" ? "heads" : "tails");
+        coin.textContent = c;
         targetDiv.appendChild(coin);
       });
 
@@ -242,12 +250,12 @@
       levelDisplay.textContent = "Level " + level;
     }
 
-    function flipCoin(index, coinElement) {
+    function flipCoin(index) {
       if (!startTime) startStopwatch();
-      coinElement.classList.toggle("flip");
+
       coins[index] = coins[index] === "H" ? "T" : "H";
       moves++;
-      movesDisplay.textContent = moves;
+      render();
       checkWin();
     }
 
@@ -290,12 +298,13 @@
       stopwatchDisplay.textContent = "⏱ 0.0s";
     }
 
-    // Theme selector
+    // Theme selector logic
     const themeSelector = document.getElementById("themeSelector");
     themeSelector.addEventListener("change", (e) => {
       document.body.className = e.target.value;
     });
 
+    // Init game
     resetGame();
   </script>
 </body>
