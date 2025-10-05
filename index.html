@@ -12,9 +12,7 @@
       transition: background 0.5s, color 0.5s;
     }
 
-    h1 {
-      margin-bottom: 10px;
-    }
+    h1 { margin-bottom: 10px; }
 
     button {
       padding: 10px 20px;
@@ -92,6 +90,21 @@
       border: 2px solid #333;
       border-radius: 8px;
     }
+
+    /* === CONFETTI === */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      opacity: 0.9;
+      pointer-events: none;
+      animation: fall 3s linear forwards;
+    }
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
   </style>
 </head>
 <body class="light">
@@ -144,7 +157,8 @@
 
   <script>
     // === THEME SELECTOR ===
-    document.getElementById("themeSelector").addEventListener("change", (e)=>{
+    const themeSelector = document.getElementById("themeSelector");
+    themeSelector.addEventListener("change", (e)=>{
       document.body.className = e.target.value;
     });
 
@@ -213,10 +227,11 @@
     function checkWin(){
       if(coins.join("")===target.join("")){
         stopStopwatch();
+        triggerConfetti();
         setTimeout(()=>{
           alert(`Level ${level} complete!\nMoves: ${moves}\nTime: ${stopwatchDisplay.textContent}`);
           level++; resetGame();
-        },150);
+        },2000);
       }
     }
 
@@ -238,6 +253,30 @@
 
     function stopStopwatch(){ clearInterval(timerInterval); }
     function resetStopwatch(){ clearInterval(timerInterval); startTime=null; stopwatchDisplay.textContent="0.0s"; }
+
+    // === THEME-BASED CONFETTI ===
+    function triggerConfetti() {
+      const theme = document.body.className;
+      let colors;
+      switch(theme) {
+        case "dark": colors = ["#00ffff","#ff00ff","#ffff00","#00ff00","#ff0055"]; break;
+        case "green": colors = ["#8ac926","#b5e48c","#52b788","#40916c","#d8f3dc"]; break;
+        case "blue": colors = ["#1e96fc","#a2d2ff","#90e0ef","#0077b6","#caf0f8"]; break;
+        case "orange": colors = ["#ff8c00","#ffb347","#ff6f3c","#ffd166","#ffcc80"]; break;
+        default: colors = ["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93"]; // light
+      }
+
+      for (let i = 0; i < 100; i++) {
+        const conf = document.createElement("div");
+        conf.className = "confetti";
+        conf.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+        conf.style.left = Math.random() * 100 + "vw";
+        conf.style.animationDelay = Math.random() * 0.2 + "s";
+        conf.style.width = conf.style.height = Math.random()*8+4+"px";
+        document.body.appendChild(conf);
+        setTimeout(()=>conf.remove(), 3000);
+      }
+    }
 
     // === COIN CATCHER ===
     let catcherRunning=false;
