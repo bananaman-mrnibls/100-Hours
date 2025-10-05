@@ -2,94 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Coin Flip Puzzle</title>
+  <title>Mini Coin Games</title>
   <style>
-    /* === Base Layout === */
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
       padding: 20px;
       transition: background 0.5s, color 0.5s;
+      overflow-x: hidden;
     }
 
     h1 {
-      margin-bottom: 5px;
-      transition: color 0.5s;
-    }
-
-    #levelDisplay {
-      font-size: 20px;
-      margin: 10px 0;
-      font-weight: bold;
-    }
-
-    .coin-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 15px 0;
-    }
-
-    .coin {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 22px;
-      transition: transform 0.3s, background 0.3s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-    }
-
-    .coin:hover {
-      transform: scale(1.1);
-    }
-
-    .heads {
-      background: radial-gradient(circle at top left, gold, goldenrod);
-      color: black;
-      border: 2px solid #aaa;
-    }
-
-    .tails {
-      background: radial-gradient(circle at top left, silver, gray);
-      color: black;
-      border: 2px solid #aaa;
-    }
-
-    #info {
-      margin: 15px 0;
-      font-size: 18px;
-    }
-
-    #stopwatch {
-      position: fixed;
-      top: 10px;
-      right: 20px;
-      font-size: 20px;
-      font-weight: bold;
-      background: white;
-      padding: 6px 12px;
-      border: 2px solid #333;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      margin-bottom: 10px;
     }
 
     button {
       padding: 10px 20px;
-      font-size: 16px;
+      font-size: 18px;
       border: none;
       border-radius: 10px;
       background: #4CAF50;
       color: white;
       cursor: pointer;
       transition: 0.3s;
-      margin: 5px;
+      margin: 10px;
     }
 
     button:hover {
@@ -103,104 +40,205 @@
       margin-top: 5px;
     }
 
-    /* === THEMES === */
-
-    /* LIGHT THEME */
+    /* === THEME STYLES === */
     body.light {
       background: linear-gradient(to bottom right, #f0f9ff, #cbebff);
       color: #222;
     }
-    body.light h1 {
-      color: #333;
-    }
-    body.light #stopwatch {
-      background: white;
-      border-color: #333;
-    }
-
-    /* DARK THEME */
     body.dark {
       background: linear-gradient(to bottom right, #1a1a1a, #333);
       color: #eee;
     }
-    body.dark h1 {
-      color: #f7c948;
-    }
-    body.dark #stopwatch {
-      background: #222;
-      border-color: #f7c948;
-      color: #f7c948;
-    }
-
-    /* GREEN THEME */
     body.green {
       background: linear-gradient(to bottom right, #e3f9e5, #a8e6a1);
       color: #1f3d1f;
     }
-    body.green h1 {
-      color: #2e8b57;
-    }
-    body.green #stopwatch {
-      background: #c8f7c5;
-      border-color: #2e8b57;
-      color: #2e8b57;
-    }
-
-    /* BLUE THEME */
     body.blue {
       background: linear-gradient(to bottom right, #d0e9ff, #91c9f7);
       color: #06283D;
     }
-    body.blue h1 {
-      color: #004aad;
-    }
-    body.blue #stopwatch {
-      background: #e6f2ff;
-      border-color: #004aad;
-      color: #004aad;
-    }
-
-    /* ORANGE THEME */
     body.orange {
       background: linear-gradient(to bottom right, #ffe4c4, #ffb347);
       color: #4a2c00;
     }
-    body.orange h1 {
-      color: #ff6600;
-    }
-    body.orange #stopwatch {
-      background: #fff2e0;
-      border-color: #ff6600;
-      color: #ff6600;
+
+    /* === COIN FLIP GAME === */
+    .coin-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 15px 0;
+      perspective: 1000px;
     }
 
+    .coin {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 22px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    }
+
+    .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #aaa;
+      font-weight: bold;
+    }
+
+    .front {
+      background: radial-gradient(circle at top left, gold, goldenrod);
+      color: black;
+    }
+
+    .back {
+      background: radial-gradient(circle at top left, silver, gray);
+      color: black;
+      transform: rotateY(180deg);
+    }
+
+    .flip {
+      transform: rotateY(180deg);
+    }
+
+    #stopwatch {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      background: white;
+      padding: 6px 12px;
+      border: 2px solid #333;
+      border-radius: 8px;
+    }
+
+    /* === COIN CATCHER GAME === */
+    #catcherGame {
+      display: none;
+      position: relative;
+      height: 500px;
+      border: 2px solid #333;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px auto;
+      width: 80%;
+      background: radial-gradient(circle, #fff, #ddd);
+    }
+
+    #basket {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      width: 80px;
+      height: 40px;
+      background: brown;
+      border-radius: 8px;
+      transform: translateX(-50%);
+    }
+
+    .fallingCoin {
+      position: absolute;
+      top: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: gold;
+      border: 2px solid #b8860b;
+    }
+
+    #scoreDisplay {
+      font-size: 20px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    /* === HIDE/SHOW SECTIONS === */
+    .hidden { display: none; }
+    .visible { display: block; }
   </style>
 </head>
 <body class="light">
-  <h1>🪙 Coin Flip Puzzle</h1>
-  <div id="stopwatch">⏱ 0.0s</div>
-  <p id="levelDisplay">Level 1</p>
+  <h1>🕹️ Mini Coin Games</h1>
 
-  <label for="themeSelector">🎨 Theme:</label>
-  <select id="themeSelector">
-    <option value="light">Light</option>
-    <option value="dark">Dark</option>
-    <option value="green">Green</option>
-    <option value="blue">Blue</option>
-    <option value="orange">Orange</option>
-  </select>
+  <div id="menu" class="visible">
+    <p>Select a game:</p>
+    <button onclick="showGame('flip')">🪙 Coin Flip Puzzle</button>
+    <button onclick="showGame('catcher')">🎯 Coin Catcher</button>
+    <br>
+    <label>🎨 Theme:</label>
+    <select id="themeSelector">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="green">Green</option>
+      <option value="blue">Blue</option>
+      <option value="orange">Orange</option>
+    </select>
+  </div>
 
-  <div id="game">
-    <p id="target">Target Pattern:</p>
+  <!-- COIN FLIP GAME -->
+  <div id="flipGame" class="hidden">
+    <div id="stopwatch">⏱ 0.0s</div>
+    <h2>🪙 Coin Flip Puzzle</h2>
+    <p id="levelDisplay">Level 1</p>
     <div class="coin-row" id="coins"></div>
     <div class="coin-row" id="targetRow"></div>
-    <div id="info">
-      <p>Moves: <span id="moves">0</span></p>
+    <p>Moves: <span id="moves">0</span></p>
+    <button onclick="resetGame()">Restart Level</button><br>
+    <button onclick="backToMenu()">🏠 Back to Menu</button>
+  </div>
+
+  <!-- COIN CATCHER GAME -->
+  <div id="catcherGameWrapper" class="hidden">
+    <h2>🎯 Coin Catcher</h2>
+    <div id="catcherGame">
+      <div id="basket"></div>
     </div>
-    <button onclick="resetGame()">Restart Level</button>
+    <div id="scoreDisplay">Score: 0</div>
+    <button onclick="backToMenu()">🏠 Back to Menu</button>
   </div>
 
   <script>
+    const themeSelector = document.getElementById("themeSelector");
+    themeSelector.addEventListener("change", (e) => {
+      document.body.className = e.target.value;
+    });
+
+    function showGame(game) {
+      document.getElementById("menu").classList.add("hidden");
+      if (game === "flip") {
+        document.getElementById("flipGame").classList.remove("hidden");
+        resetGame();
+      } else {
+        document.getElementById("catcherGameWrapper").classList.remove("hidden");
+        startCatcher();
+      }
+    }
+
+    function backToMenu() {
+      document.getElementById("menu").classList.remove("hidden");
+      document.getElementById("flipGame").classList.add("hidden");
+      document.getElementById("catcherGameWrapper").classList.add("hidden");
+      stopStopwatch();
+      stopCatcher();
+    }
+
+    // ==================== COIN FLIP PUZZLE ====================
     let level = 1;
     let coins = [];
     let target = [];
@@ -222,9 +260,7 @@
     }
 
     function generateTarget(n) {
-      return Array.from({ length: n }, () =>
-        Math.random() > 0.5 ? "H" : "T"
-      );
+      return Array.from({ length: n }, () => Math.random() > 0.5 ? "H" : "T");
     }
 
     function render() {
@@ -233,16 +269,30 @@
 
       coins.forEach((c, i) => {
         const coin = document.createElement("div");
-        coin.className = "coin " + (c === "H" ? "heads" : "tails");
-        coin.textContent = c;
-        coin.onclick = () => flipCoin(i);
+        coin.className = "coin" + (c === "T" ? " flip" : "");
+        const front = document.createElement("div");
+        front.className = "face front";
+        front.textContent = "H";
+        const back = document.createElement("div");
+        back.className = "face back";
+        back.textContent = "T";
+        coin.appendChild(front);
+        coin.appendChild(back);
+        coin.onclick = () => flipCoin(i, coin);
         coinsDiv.appendChild(coin);
       });
 
       target.forEach((c) => {
         const coin = document.createElement("div");
-        coin.className = "coin " + (c === "H" ? "heads" : "tails");
-        coin.textContent = c;
+        coin.className = "coin" + (c === "T" ? " flip" : "");
+        const front = document.createElement("div");
+        front.className = "face front";
+        front.textContent = "H";
+        const back = document.createElement("div");
+        back.className = "face back";
+        back.textContent = "T";
+        coin.appendChild(front);
+        coin.appendChild(back);
         targetDiv.appendChild(coin);
       });
 
@@ -250,12 +300,12 @@
       levelDisplay.textContent = "Level " + level;
     }
 
-    function flipCoin(index) {
+    function flipCoin(index, coinElement) {
       if (!startTime) startStopwatch();
-
+      coinElement.classList.toggle("flip");
       coins[index] = coins[index] === "H" ? "T" : "H";
       moves++;
-      render();
+      movesDisplay.textContent = moves;
       checkWin();
     }
 
@@ -279,7 +329,6 @@
       render();
     }
 
-    // Stopwatch
     function startStopwatch() {
       startTime = Date.now();
       timerInterval = setInterval(() => {
@@ -298,14 +347,64 @@
       stopwatchDisplay.textContent = "⏱ 0.0s";
     }
 
-    // Theme selector logic
-    const themeSelector = document.getElementById("themeSelector");
-    themeSelector.addEventListener("change", (e) => {
-      document.body.className = e.target.value;
-    });
+    // ==================== COIN CATCHER GAME ====================
+    let catcherInterval, basket, catcherGame, score = 0, gameRunning = false;
 
-    // Init game
-    resetGame();
+    function startCatcher() {
+      catcherGame = document.getElementById("catcherGame");
+      basket = document.getElementById("basket");
+      score = 0;
+      document.getElementById("scoreDisplay").textContent = "Score: 0";
+      gameRunning = true;
+      catcherInterval = setInterval(spawnCoin, 1000);
+      document.addEventListener("mousemove", moveBasket);
+    }
+
+    function stopCatcher() {
+      gameRunning = false;
+      clearInterval(catcherInterval);
+      document.querySelectorAll(".fallingCoin").forEach(c => c.remove());
+      document.removeEventListener("mousemove", moveBasket);
+    }
+
+    function moveBasket(e) {
+      const gameRect = catcherGame.getBoundingClientRect();
+      let x = e.clientX - gameRect.left;
+      basket.style.left = x + "px";
+    }
+
+    function spawnCoin() {
+      if (!gameRunning) return;
+      const coin = document.createElement("div");
+      coin.className = "fallingCoin";
+      coin.style.left = Math.random() * (catcherGame.clientWidth - 40) + "px";
+      catcherGame.appendChild(coin);
+
+      let y = 0;
+      const fall = setInterval(() => {
+        y += 5;
+        coin.style.top = y + "px";
+
+        const coinRect = coin.getBoundingClientRect();
+        const basketRect = basket.getBoundingClientRect();
+
+        if (
+          coinRect.bottom >= basketRect.top &&
+          coinRect.left < basketRect.right &&
+          coinRect.right > basketRect.left
+        ) {
+          score++;
+          document.getElementById("scoreDisplay").textContent = "Score: " + score;
+          coin.remove();
+          clearInterval(fall);
+        }
+
+        if (y > catcherGame.clientHeight) {
+          coin.remove();
+          clearInterval(fall);
+        }
+      }, 30);
+    }
   </script>
 </body>
 </html>
