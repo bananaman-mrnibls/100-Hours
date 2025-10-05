@@ -151,7 +151,7 @@
     <div id="catcherGame" style="position:relative;width:400px;height:500px;margin:0 auto;background:#fff8e1;border:3px solid #333;border-radius:10px;overflow:hidden;">
       <div id="basket" style="position:absolute;bottom:10px;left:170px;width:60px;height:30px;background:brown;border-radius:5px;"></div>
     </div>
-    <p>Score: <span id="catcherScore">0</span></p>
+    <p id="catcherScore">Score: 0 | Lives: 3</p>
     <button id="backMenuCatcher">Back to Menu</button>
   </section>
 
@@ -227,11 +227,11 @@
     function checkWin(){
       if(coins.join("")===target.join("")){
         stopStopwatch();
-        triggerConfetti();
+        triggerConfetti(); // show confetti immediately
         setTimeout(()=>{
           alert(`Level ${level} complete!\nMoves: ${moves}\nTime: ${stopwatchDisplay.textContent}`);
           level++; resetGame();
-        },2000);
+        },500);
       }
     }
 
@@ -278,16 +278,18 @@
       }
     }
 
-    // === COIN CATCHER ===
+    // === COIN CATCHER WITH LIVES ===
     let catcherRunning=false;
     let basket=document.getElementById("basket");
     let catcherScore=0;
+    let lives=3;
     let coinInterval;
     let coinsArr=[];
 
     function startCoinCatcher(){
       catcherScore=0;
-      document.getElementById("catcherScore").textContent=catcherScore;
+      lives=3;
+      document.getElementById("catcherScore").textContent = `Score: ${catcherScore} | Lives: ${lives}`;
       catcherRunning=true;
       const gameArea=document.getElementById("catcherGame");
 
@@ -326,6 +328,7 @@
         let top=parseFloat(coin.style.top);
         coin.style.top=top+5+"px";
         const coinRect=coin.getBoundingClientRect();
+
         if(
           coinRect.bottom>=basketRect.top &&
           coinRect.right>=basketRect.left &&
@@ -334,11 +337,18 @@
         ){
           coin.remove(); coinsArr.splice(i,1);
           catcherScore++;
-          document.getElementById("catcherScore").textContent=catcherScore;
         } else if(coinRect.top>gameRect.bottom){
           coin.remove(); coinsArr.splice(i,1);
+          lives--;
+          if(lives <= 0){
+            catcherRunning=false;
+            alert("Game Over! Final Score: " + catcherScore);
+            backToMenuCatcher();
+            return;
+          }
         }
       }
+      document.getElementById("catcherScore").textContent = `Score: ${catcherScore} | Lives: ${lives}`;
       requestAnimationFrame(animateCoins);
     }
 
@@ -349,11 +359,13 @@
       coinsArr=[];
     }
 
-    document.getElementById("backMenuCatcher").onclick=()=>{
+    function backToMenuCatcher(){
       stopCoinCatcher();
       document.getElementById("coinCatcher").style.display="none";
       document.getElementById("menu").style.display="block";
-    };
+    }
+
+    document.getElementById("backMenuCatcher").onclick=backToMenuCatcher;
   </script>
 </body>
 </html>
